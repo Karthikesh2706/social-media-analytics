@@ -1,12 +1,47 @@
+# S3 bucket for data storage
+resource "aws_s3_bucket" "data_bucket" {
+  bucket        = "${var.project_name}-${var.environment}-data"
+  force_destroy = true
+}
+
+# CloudWatch log group for app logs
+resource "aws_cloudwatch_log_group" "app_log_group" {
+  name              = "/aws/${var.project_name}/${var.environment}"
+  retention_in_days = 7
+}
+
+# CloudWatch dashboard for analytics
+resource "aws_cloudwatch_dashboard" "analytics_dashboard" {
+  dashboard_name = "${var.project_name}-${var.environment}-dashboard"
+  dashboard_body = jsonencode({
+    widgets = [
+      {
+        type = "text",
+        x = 0,
+        y = 0,
+        width = 24,
+        height = 3,
+        properties = {
+          markdown = "# 📊 Social Media Analytics Dashboard"
+        }
+      }
+    ]
+  })
+}
+
 # Get default VPC
 data "aws_vpc" "default" {
   default = true
 }
 
 # Get default subnet
-data "aws_subnet_ids" "default" {
-  vpc_id = data.aws_vpc.default.id
+data "aws_subnets" "default" {
+  filter {
+    name   = "vpc-id"
+    values = [data.aws_vpc.default.id]
+  }
 }
+
 
 # Generate random suffix
 resource "random_id" "grafana_suffix" {
@@ -47,7 +82,8 @@ resource "aws_security_group" "grafana_sg" {
 resource "aws_instance" "grafana_server" {
   ami           = "ami-0c55b159cbfafe1f0" # Ubuntu 22.04 for us-east-1
   instance_type = "t2.micro"
-  subnet_id     = tolist(data.aws_subnet_ids.default.ids)[0]
+  subnet_id = tolist(data.aws_subnets.default.ids)[0]
+
   vpc_security_group_ids = [aws_security_group.grafana_sg.id]
 
   tags = {
