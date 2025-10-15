@@ -1,38 +1,3 @@
-# Generate a random name suffix
-resource "random_id" "grafana_suffix" {
-  byte_length = 4
-}
-
-# Security group for Grafana EC2
-resource "aws_security_group" "grafana_sg" {
-  name        = "${var.project_name}-${var.environment}-grafana-sg"
-  description = "Allow Grafana (port 3000) and SSH (port 22)"
-  vpc_id      = data.aws_vpc.default.id
-
-  ingress {
-    description = "SSH access"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "Grafana web access"
-    from_port   = 3000
-    to_port     = 3000
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
 # Get default VPC
 data "aws_vpc" "default" {
   default = true
@@ -98,4 +63,3 @@ resource "aws_instance" "grafana_server" {
               docker run -d -p 3000:3000 grafana/grafana
               EOF
 }
-
