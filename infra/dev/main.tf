@@ -34,14 +34,13 @@ data "aws_vpc" "default" {
   default = true
 }
 
-# Get default subnet
+# ✅ FIX: Correct data source for subnets
 data "aws_subnets" "default" {
   filter {
     name   = "vpc-id"
     values = [data.aws_vpc.default.id]
   }
 }
-
 
 # Generate random suffix
 resource "random_id" "grafana_suffix" {
@@ -78,10 +77,11 @@ resource "aws_security_group" "grafana_sg" {
   }
 }
 
+# ✅ FIX: Correct subnet reference + ensure public IP association
 resource "aws_instance" "grafana_server" {
-  ami                         = "ami-0866a3c8686eaeeba"
+  ami                         = "ami-0866a3c8686eaeeba" # Ubuntu 22.04 us-east-1
   instance_type                = "t2.micro"
-  subnet_id                    = tolist(data.aws_subnet_ids.default.ids)[0]
+  subnet_id                    = tolist(data.aws_subnets.default.ids)[0]
   associate_public_ip_address  = true
   vpc_security_group_ids       = [aws_security_group.grafana_sg.id]
 
