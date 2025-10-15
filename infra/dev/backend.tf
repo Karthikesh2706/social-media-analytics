@@ -3,7 +3,7 @@ terraform {
     bucket        = "sma-terraform-state-unique123"
     key           = "dev/terraform.tfstate"
     region        = "us-east-1"
-    use_lockfile  = true
+  
     encrypt       = true
   }
 }
