@@ -80,10 +80,9 @@ resource "aws_security_group" "grafana_sg" {
 
 # EC2 instance for Grafana
 resource "aws_instance" "grafana_server" {
-  ami           = "ami-0c55b159cbfafe1f0" # Ubuntu 22.04 for us-east-1
+  ami           = "ami-0866a3c8686eaeeba" # Ubuntu 22.04 LTS for us-east-1
   instance_type = "t2.micro"
-  subnet_id = tolist(data.aws_subnets.default.ids)[0]
-
+  subnet_id     = tolist(data.aws_subnets.default.ids)[0]
   vpc_security_group_ids = [aws_security_group.grafana_sg.id]
 
   tags = {
