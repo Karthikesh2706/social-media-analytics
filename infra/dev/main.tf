@@ -78,12 +78,12 @@ resource "aws_security_group" "grafana_sg" {
   }
 }
 
-# EC2 instance for Grafana
 resource "aws_instance" "grafana_server" {
-  ami           = "ami-0866a3c8686eaeeba" # Ubuntu 22.04 LTS for us-east-1
-  instance_type = "t2.micro"
-  subnet_id     = tolist(data.aws_subnets.default.ids)[0]
-  vpc_security_group_ids = [aws_security_group.grafana_sg.id]
+  ami                         = "ami-0866a3c8686eaeeba"
+  instance_type                = "t2.micro"
+  subnet_id                    = tolist(data.aws_subnet_ids.default.ids)[0]
+  associate_public_ip_address  = true
+  vpc_security_group_ids       = [aws_security_group.grafana_sg.id]
 
   tags = {
     Name = "${var.project_name}-${var.environment}-grafana"
